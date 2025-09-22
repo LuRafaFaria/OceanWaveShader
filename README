@@ -1,0 +1,18 @@
+My preferred method is a simple yet effective implementation for simulating realistic water behavior. The core technique uses two overlapping textures moving in perpendicular directions. However, having them move in a fixed, straight line looked unnatural.
+
+To create a more dynamic and interesting effect, I made the direction of each texture constantly change. Instead of moving in a straight perpendicular line, I set both textures to rotate in a circular pattern, with one slightly delayed behind the other. This creates the illusion of perpendicular motion while also simulating the shifting nature of ocean currents.
+
+Technical Implementation:
+
+Circular Motion: I created a waveUvs variable, calculated as float2(sin(_Time.y * _WaveSpeed), cos(_Time.y * _WaveSpeed)). Adding this value to a texture's UV coordinates creates a smooth, clockwise circular rotation. The _WaveSpeed variable controls the rotation speed.
+
+Distorting the Circle: To make the rotation more organic and less perfectly circular (e.g., oval-shaped), I modified the inputs to the sine and cosine functions. I added the y component of the noise UVs (multiplied by a _DoWiggle slider) to the sine function, and the x component (also multiplied by _DoWiggle) to the cosine function.
+
+A _DoWiggle value of 0 results in a perfect circle.
+
+Increasing _DoWiggle stretches the circular motion into an oval.
+
+Perpendicular Motion: The key to maintaining perpendicular movement between the two rotating textures was to use perpendicular vectors. For the first texture, I offset its UVs by the waveUvs.xy vector.
+For the second texture, I offset its UVs by a vector composed of float2(waveUvs.y, -waveUvs.x). This mathematical operation always yields a vector that is 90 degrees perpendicular to the first one, ensuring their motions remain orthogonal regardless of the rotation.
+
+Blending: Finally, I used a lerp function to blend the results of sampling the ocean texture with these two different UV offsets. A _BlendingWave slider (defaulted to 0.5) controls the blend between them, allowing both textures to be visible and combine to simulate a complex ocean surface.
